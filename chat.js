@@ -15,7 +15,7 @@ let readObserver = null;
 let onlineUsers = [];
 
 function connect() {
-    ws = new WebSocket('ws://' + window.location.host);
+    ws = new WebSocket(`wss://${window.location.host}`);
     ws.onopen = () => console.log('WebSocket连接成功');
     ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
