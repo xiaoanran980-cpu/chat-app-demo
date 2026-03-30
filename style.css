@@ -1,0 +1,340 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Microsoft Yahei", "PingFang SC", sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* 聊天主容器 */
+.chat-container {
+    width: 100%;
+    max-width: 900px;
+    height: 80vh;
+    min-height: 600px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 顶部标题栏 */
+.chat-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 24px;
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 聊天主体（左侧用户+右侧聊天） */
+.chat-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* 左侧用户面板 */
+.user-panel {
+    width: 280px;
+    background: #f7f8fa;
+    border-right: 1px solid #e5e6eb;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.my-info {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.connect-box {
+    display: flex;
+    gap: 8px;
+}
+
+.connect-box input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #e5e6eb;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.connect-box input:focus {
+    border-color: #667eea;
+}
+
+.connect-box button {
+    padding: 10px 16px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.connect-box button:hover {
+    background: #5a6fd8;
+}
+
+.user-list-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+    margin-top: 8px;
+}
+
+.user-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 4px;
+}
+
+/* 滚动条美化 */
+.user-list::-webkit-scrollbar,
+.message-box::-webkit-scrollbar {
+    width: 6px;
+}
+.user-list::-webkit-scrollbar-thumb,
+.message-box::-webkit-scrollbar-thumb {
+    background: #dcdfe6;
+    border-radius: 3px;
+}
+.user-list::-webkit-scrollbar-thumb:hover,
+.message-box::-webkit-scrollbar-thumb:hover {
+    background: #c0c4cc;
+}
+
+.user-item {
+    padding: 10px 14px;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.user-item:hover {
+    background: #667eea;
+    color: white;
+    transform: translateX(2px);
+}
+
+/* 右侧聊天面板 */
+.chat-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 消息自动销毁设置栏 */
+.burn-setting {
+    padding: 12px 24px;
+    background: #f7f8fa;
+    border-bottom: 1px solid #e5e6eb;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.burn-setting input[type="range"] {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: #e5e6eb;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.burn-setting input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+}
+
+.burn-setting input[type="number"] {
+    width: 50px;
+    padding: 4px 8px;
+    border: 1px solid #e5e6eb;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    outline: none;
+}
+
+/* 消息展示区域 */
+.message-box {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: #fafafa;
+}
+
+/* 自己的消息气泡 */
+.my-msg {
+    align-self: flex-end;
+    max-width: 70%;
+    padding: 12px 16px;
+    background: #667eea;
+    color: white;
+    border-radius: 16px 16px 4px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    position: relative;
+}
+
+/* 对方的消息气泡 */
+.to-msg {
+    align-self: flex-start;
+    max-width: 70%;
+    padding: 12px 16px;
+    background: white;
+    color: #333;
+    border: 1px solid #e5e6eb;
+    border-radius: 16px 16px 16px 4px;
+    font-size: 14px;
+    line-height: 1.5;
+    position: relative;
+}
+
+/* 消息内容 */
+.msg-content {
+    margin-bottom: 6px;
+    word-break: break-all;
+}
+
+/* 消息时间+状态容器 */
+.msg-info {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* 自己消息的信息栏 */
+.my-msg .msg-info {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* 对方消息的信息栏 */
+.to-msg .msg-info {
+    color: #909399;
+}
+
+/* 消息状态样式：未送达/已送达/已读 */
+.msg-status.undelivered {
+    color: #ff9f43; /* 橙色：未送达 */
+}
+.msg-status.delivered {
+    color: #ffffff; /* 白色：已送达 */
+}
+.msg-status.read {
+    color: #4cd137; /* 绿色：已读 */
+}
+.msg-status.hidden {
+    display: none; /* 对方消息隐藏状态 */
+}
+
+/* 底部发送框 */
+.send-box {
+    padding: 16px 24px;
+    border-top: 1px solid #e5e6eb;
+    display: flex;
+    gap: 12px;
+    background: white;
+}
+
+.send-box input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 1px solid #e5e6eb;
+    border-radius: 24px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    height: 48px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.send-box input:focus {
+    border-color: #667eea;
+}
+
+.send-box button {
+    padding: 0 24px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.send-box button:hover {
+    background: #5a6fd8;
+    transform: scale(1.02);
+}
+
+/* 响应式适配（平板/手机） */
+@media (max-width: 768px) {
+    .chat-container {
+        height: 100vh;
+        min-height: auto;
+        border-radius: 0;
+    }
+    .user-panel {
+        width: 220px;
+        padding: 16px;
+    }
+    .message-box {
+        padding: 16px;
+    }
+    .send-box {
+        padding: 12px 16px;
+    }
+}

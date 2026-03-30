@@ -1,0 +1,14 @@
+{
+  "name": "chat-server",
+  "version": "1.0.0",
+  "description": "一对一聊天+语音通话后端服务",
+  "main": "server.js",
+  "dependencies": {
+    "ws": "^8.20.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "MIT"
+}
