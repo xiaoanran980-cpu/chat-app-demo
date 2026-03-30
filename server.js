@@ -111,7 +111,7 @@ function broadcastOnlineList() {
 }
 
 // 启动服务器
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`✅ 服务启动成功！访问地址：http://localhost:${PORT}`);
     console.log(`✅ WebSocket服务已启动，监听端口：${PORT}`);
