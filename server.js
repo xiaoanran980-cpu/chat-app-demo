@@ -8,11 +8,20 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // 静态文件服务（index.html / style.css / chat.js）
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(__dirname));
 
 // 根路径路由
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// 确保所有静态文件都能被正确访问
+app.get("/style.css", (req, res) => {
+  res.sendFile(path.join(__dirname, "style.css"));
+});
+
+app.get("/chat.js", (req, res) => {
+  res.sendFile(path.join(__dirname, "chat.js"));
 });
 
 // 在线用户映射：userId → socketId
