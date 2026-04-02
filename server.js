@@ -27,6 +27,16 @@ app.get("/chat.js", (req, res) => {
 // 在线用户映射：userId → socketId
 const onlineUsers = new Map();
 
+// 定期广播在线用户列表
+function broadcastOnlineUsers() {
+  const onlineList = Array.from(onlineUsers.keys());
+  console.log("Broadcasting online list to all clients:", onlineList);
+  io.emit("onlineList", onlineList);
+}
+
+// 每3秒广播一次在线用户列表
+setInterval(broadcastOnlineUsers, 3000);
+
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
   let userId = null;
@@ -36,10 +46,8 @@ io.on("connection", (socket) => {
     console.log("User joined:", id);
     userId = id;
     onlineUsers.set(id, socket.id);
-    // 广播给所有客户端，包括新加入的用户
-    const onlineList = Array.from(onlineUsers.keys());
-    console.log("Broadcasting online list:", onlineList);
-    io.emit("onlineList", onlineList);
+    // 立即广播在线用户列表
+    broadcastOnlineUsers();
   });
 
   // 私聊消息转发
@@ -78,25 +86,9 @@ io.on("connection", (socket) => {
     console.log("Client disconnected:", socket.id);
     if (userId) {
       onlineUsers.delete(userId);
-      // 广播给所有客户端
-      const onlineList = Array.from(onlineUsers.keys());
-      console.log("Broadcasting online list after disconnect:", onlineList);
-      io.emit("onlineList", onlineList);
+      // 立即广播在线用户列表
+      broadcastOnlineUsers();
     }
-  });
-  
-  // 定时广播在线用户列表，确保所有客户端都能收到最新的列表
-  const interval = setInterval(() => {
-    if (onlineUsers.size > 0) {
-      const onlineList = Array.from(onlineUsers.keys());
-      console.log("Scheduled broadcast of online list:", onlineList);
-      io.emit("onlineList", onlineList);
-    }
-  }, 5000); // 每5秒广播一次
-  
-  // 清理定时器
-  socket.on("disconnect", () => {
-    clearInterval(interval);
   });
 });
 

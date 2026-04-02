@@ -60,17 +60,6 @@ function initPage() {
   // 显示加载状态
   onlineUser.textContent = "加载中...";
   selectBtn.innerHTML = '<option value="未选择">未选择</option>';
-  
-  // 尝试从本地存储加载在线用户列表
-  const cachedOnlineUsers = localStorage.getItem("cached_online_users");
-  if (cachedOnlineUsers) {
-    try {
-      const users = JSON.parse(cachedOnlineUsers);
-      updateOnlineUsersUI(users);
-    } catch (e) {
-      console.error("加载缓存的在线用户失败:", e);
-    }
-  }
 }
 
 // ==============================================
@@ -111,9 +100,6 @@ function updateOnlineUsersUI(users) {
     targetId.textContent = lastChatTarget;
     loadMessages();
   }
-  
-  // 缓存在线用户列表到本地存储
-  localStorage.setItem("cached_online_users", JSON.stringify(users));
 }
 
 // ==============================================
@@ -154,24 +140,12 @@ socket.on("onlineList", (list) => {
   
   // 更新界面
   updateOnlineUsersUI(list);
-  
-  // 移除自动发送已读回执的代码，避免刷新页面时未读消息变成已读
 });
 
 socket.on("connect_error", (error) => {
   console.error("Socket connection error:", error);
   // 显示错误信息
-  onlineUser.textContent = "连接失败，使用缓存数据";
-  // 尝试从本地存储加载在线用户列表
-  const cachedOnlineUsers = localStorage.getItem("cached_online_users");
-  if (cachedOnlineUsers) {
-    try {
-      const users = JSON.parse(cachedOnlineUsers);
-      updateOnlineUsersUI(users);
-    } catch (e) {
-      console.error("加载缓存的在线用户失败:", e);
-    }
-  }
+  onlineUser.textContent = "连接失败";
 });
 
 selectBtn.addEventListener("change", () => {
@@ -179,8 +153,6 @@ selectBtn.addEventListener("change", () => {
   targetId.textContent = to;
   localStorage.setItem("last_chat_target", to);
   loadMessages();
-  // 移除自动发送已读回执的代码，避免切换聊天对象时未读消息变成已读
-  // 已读回执将在用户真正看到消息后通过其他方式发送
 });
 
 // ==============================================
