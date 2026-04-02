@@ -1,14 +1,17 @@
 {
-  "name": "chat-server",
+  "name": "chat-app",
   "version": "1.0.0",
-  "description": "一对一聊天+语音通话后端服务",
+  "description": "霁语·轻聊",
   "main": "server.js",
-  "dependencies": {
-    "ws": "^8.20.0"
-  },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": []
 }

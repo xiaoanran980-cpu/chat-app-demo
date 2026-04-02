@@ -1,52 +1,49 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>实时一对一聊天（带已读/送达回执）</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>霁语·轻聊</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h2>💬 实时一对一聊天</h2>
-        </div>
-        
-        <div class="chat-body">
-            <!-- 左侧用户面板 -->
-            <div class="user-panel">
-                <div class="my-info">
-                    我的ID：<span id="myid">-</span>
-                </div>
-                
-                <div class="connect-box">
-                    <input type="text" id="toid" placeholder="输入对方ID选择聊天">
-                    <button onclick="selectUser()">选择聊天对象</button>
-                </div>
-                
-                <div class="user-list-title">在线用户</div>
-                <div id="ulist" class="user-list"></div>
-            </div>
-
-            <!-- 右侧聊天面板 -->
-            <div class="chat-panel">
-                <div class="burn-setting">
-                    <span>消息自动销毁：</span>
-                    <input type="range" id="s" min="0" max="60" value="10">
-                    <input type="number" id="n" min="0" max="60" value="10">
-                    <span>秒</span>
-                </div>
-
-                <div id="msg" class="message-box"></div>
-                
-                <div class="send-box">
-                    <input type="text" id="text" placeholder="输入消息，按回车发送，按住shift+回车换行...">
-                    <button onclick="sendMessage()">发送</button>
-                </div>
-            </div>
-        </div>
+  <div class="chat-container">
+    <div class="chat-header">
+      <span class="icon" style="color:#fff;font-size:20px;">☁️</span>
+      <h1>霁语·轻聊</h1>
     </div>
-
-    <script src="chat.js"></script>
+    <div class="chat-content">
+      <aside class="sidebar">
+        <div class="sidebar-item">
+          <label>我的ID</label>
+          <div class="id-box" id="myId">加载中...</div>
+        </div>
+        <div class="sidebar-item">
+          <label>聊天对象</label>
+          <div class="id-box" id="targetId">未选择</div>
+        </div>
+        <div class="sidebar-item">
+          <label>选择聊天用户</label>
+          <select class="select-btn" id="selectBtn"></select>
+        </div>
+        <div class="sidebar-item">
+          <label>在线用户</label>
+          <div class="id-box online-user" id="onlineUser">加载中...</div>
+        </div>
+      </aside>
+      <main class="chat-main">
+        <div class="control-bar">
+          <button id="clearBothBtn">双向销毁</button>
+        </div>
+        <div class="messages-area" id="msgArea"></div>
+        <div class="input-area">
+          <textarea id="msgInput" placeholder="输入消息..."></textarea>
+          <button class="send-btn" id="sendBtn">发送</button>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="chat.js"></script>
 </body>
 </html>
