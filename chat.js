@@ -4,7 +4,8 @@ const socket = io("/", {
   reconnectionAttempts: Infinity,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
-  timeout: 20000
+  timeout: 20000,
+  transports: ["polling", "websocket"] // 优先使用轮询，确保在Vercel上也能工作
 });
 
 const myId = document.getElementById("myId");
@@ -123,6 +124,7 @@ function emitReadReceipt() {
 // ==============================================
 socket.on("connect", () => {
   console.log("Socket connected");
+  console.log("Transport used:", socket.io.engine.transport.name);
   onlineUser.textContent = "加载中...";
   socket.emit("userJoin", currentUserId);
   // 连接后立即请求在线用户列表
@@ -148,6 +150,7 @@ socket.on("connect_error", (error) => {
 
 socket.on("reconnect", () => {
   console.log("Socket reconnected");
+  console.log("Transport used:", socket.io.engine.transport.name);
   onlineUser.textContent = "加载中...";
   socket.emit("userJoin", currentUserId);
   socket.emit("requestOnlineList");
