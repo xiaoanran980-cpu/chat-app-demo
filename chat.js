@@ -1,4 +1,12 @@
-const socket = io();
+// 配置socket.io连接，确保即使页面在后台也能保持连接
+const socket = io({
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  timeout: 20000
+});
+
 const myId = document.getElementById("myId");
 const targetId = document.getElementById("targetId");
 const onlineUser = document.getElementById("onlineUser");
@@ -127,6 +135,10 @@ function emitReadReceipt() {
 // ==============================================
 socket.on("connect", () => {
   socket.emit("userJoin", currentUserId);
+  // 连接后立即请求在线用户列表
+  setTimeout(() => {
+    socket.emit("requestOnlineList");
+  }, 1000);
 });
 
 socket.on("onlineList", (list) => {
