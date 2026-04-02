@@ -1,5 +1,11 @@
 // 配置socket.io连接，确保能正确连接到服务器
-const socket = io(window.location.origin);
+const socket = io(window.location.origin, {
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  timeout: 20000
+});
 
 const myId = document.getElementById("myId");
 const targetId = document.getElementById("targetId");
@@ -45,6 +51,12 @@ function initPage() {
   // 显示加载状态
   onlineUser.textContent = "加载中...";
   selectBtn.innerHTML = '<option value="未选择">未选择</option>';
+  
+  // 立即尝试连接
+  if (socket.connected) {
+    socket.emit("userJoin", currentUserId);
+    socket.emit("requestOnlineList");
+  }
 }
 
 // ==============================================
@@ -111,6 +123,7 @@ function emitReadReceipt() {
 // ==============================================
 socket.on("connect", () => {
   console.log("Socket connected");
+  onlineUser.textContent = "加载中...";
   socket.emit("userJoin", currentUserId);
   // 连接后立即请求在线用户列表
   setTimeout(() => {
@@ -130,6 +143,18 @@ socket.on("onlineList", (list) => {
 socket.on("connect_error", (error) => {
   console.error("Socket connection error:", error);
   // 显示错误信息
+  onlineUser.textContent = "连接失败";
+});
+
+socket.on("reconnect", () => {
+  console.log("Socket reconnected");
+  onlineUser.textContent = "加载中...";
+  socket.emit("userJoin", currentUserId);
+  socket.emit("requestOnlineList");
+});
+
+socket.on("reconnect_error", (error) => {
+  console.error("Socket reconnect error:", error);
   onlineUser.textContent = "连接失败";
 });
 
