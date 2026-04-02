@@ -1,13 +1,14 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
 // 静态文件服务（index.html / style.css / chat.js）
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname)));
 
 // 在线用户映射：userId → socketId
 const onlineUsers = new Map();
