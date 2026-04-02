@@ -1,11 +1,5 @@
-// 配置socket.io连接，确保即使页面在后台也能保持连接
-const socket = io({
-  reconnection: true,
-  reconnectionAttempts: Infinity,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  timeout: 20000
-});
+// 简化socket.io连接配置，确保能正确连接到服务器
+const socket = io();
 
 const myId = document.getElementById("myId");
 const targetId = document.getElementById("targetId");
@@ -66,6 +60,17 @@ function initPage() {
   // 显示加载状态
   onlineUser.textContent = "加载中...";
   selectBtn.innerHTML = '<option value="未选择">未选择</option>';
+  
+  // 尝试从本地存储加载在线用户列表
+  const cachedOnlineUsers = localStorage.getItem("cached_online_users");
+  if (cachedOnlineUsers) {
+    try {
+      const users = JSON.parse(cachedOnlineUsers);
+      updateOnlineUsersUI(users);
+    } catch (e) {
+      console.error("加载缓存的在线用户失败:", e);
+    }
+  }
 }
 
 // ==============================================
@@ -134,14 +139,16 @@ function emitReadReceipt() {
 // 在线列表 + 记忆聊天对象
 // ==============================================
 socket.on("connect", () => {
+  console.log("Socket connected");
   socket.emit("userJoin", currentUserId);
   // 连接后立即请求在线用户列表
   setTimeout(() => {
     socket.emit("requestOnlineList");
-  }, 1000);
+  }, 500);
 });
 
 socket.on("onlineList", (list) => {
+  console.log("Received online list:", list);
   // 更新在线用户列表
   onlineUsersList = list;
   
@@ -149,6 +156,22 @@ socket.on("onlineList", (list) => {
   updateOnlineUsersUI(list);
   
   // 移除自动发送已读回执的代码，避免刷新页面时未读消息变成已读
+});
+
+socket.on("connect_error", (error) => {
+  console.error("Socket connection error:", error);
+  // 显示错误信息
+  onlineUser.textContent = "连接失败，使用缓存数据";
+  // 尝试从本地存储加载在线用户列表
+  const cachedOnlineUsers = localStorage.getItem("cached_online_users");
+  if (cachedOnlineUsers) {
+    try {
+      const users = JSON.parse(cachedOnlineUsers);
+      updateOnlineUsersUI(users);
+    } catch (e) {
+      console.error("加载缓存的在线用户失败:", e);
+    }
+  }
 });
 
 selectBtn.addEventListener("change", () => {

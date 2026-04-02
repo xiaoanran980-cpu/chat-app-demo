@@ -5,15 +5,7 @@ const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  // 配置socket.io，确保即使页面在后台也能保持连接
-  pingInterval: 10000,
-  pingTimeout: 5000,
-  reconnection: true,
-  reconnectionAttempts: Infinity,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000
-});
+const io = new Server(server);
 
 // 静态文件服务（index.html / style.css / chat.js）
 app.use(express.static(__dirname));
@@ -36,14 +28,18 @@ app.get("/chat.js", (req, res) => {
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
+  console.log("New client connected:", socket.id);
   let userId = null;
 
   // 用户加入
   socket.on("userJoin", (id) => {
+    console.log("User joined:", id);
     userId = id;
     onlineUsers.set(id, socket.id);
     // 广播给所有客户端，包括新加入的用户
-    io.emit("onlineList", Array.from(onlineUsers.keys()));
+    const onlineList = Array.from(onlineUsers.keys());
+    console.log("Broadcasting online list:", onlineList);
+    io.emit("onlineList", onlineList);
   });
 
   // 私聊消息转发
@@ -72,22 +68,29 @@ io.on("connection", (socket) => {
 
   // 客户端请求在线用户列表
   socket.on("requestOnlineList", () => {
-    socket.emit("onlineList", Array.from(onlineUsers.keys()));
+    const onlineList = Array.from(onlineUsers.keys());
+    console.log("Sending online list to client:", onlineList);
+    socket.emit("onlineList", onlineList);
   });
 
   // 用户断开
   socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
     if (userId) {
       onlineUsers.delete(userId);
       // 广播给所有客户端
-      io.emit("onlineList", Array.from(onlineUsers.keys()));
+      const onlineList = Array.from(onlineUsers.keys());
+      console.log("Broadcasting online list after disconnect:", onlineList);
+      io.emit("onlineList", onlineList);
     }
   });
   
   // 定时广播在线用户列表，确保所有客户端都能收到最新的列表
   const interval = setInterval(() => {
     if (onlineUsers.size > 0) {
-      io.emit("onlineList", Array.from(onlineUsers.keys()));
+      const onlineList = Array.from(onlineUsers.keys());
+      console.log("Scheduled broadcast of online list:", onlineList);
+      io.emit("onlineList", onlineList);
     }
   }, 5000); // 每5秒广播一次
   
