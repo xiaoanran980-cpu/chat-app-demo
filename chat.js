@@ -55,22 +55,9 @@ function initPage() {
     targetId.textContent = "未选择";
   }
   
-  // 立即显示缓存的在线用户或默认状态
-  const cachedOnlineUsers = localStorage.getItem("cached_online_users");
-  if (cachedOnlineUsers) {
-    try {
-      onlineUsersList = JSON.parse(cachedOnlineUsers);
-      // 立即显示缓存的在线用户
-      updateOnlineUsersUI(onlineUsersList);
-    } catch (e) {
-      console.error("加载缓存的在线用户失败:", e);
-      // 显示默认状态
-      updateOnlineUsersUI([]);
-    }
-  } else {
-    // 显示默认状态
-    updateOnlineUsersUI([]);
-  }
+  // 显示加载状态
+  onlineUser.textContent = "加载中...";
+  selectBtn.innerHTML = '<option value="未选择">未选择</option>';
 }
 
 // ==============================================
@@ -81,6 +68,9 @@ function updateOnlineUsersUI(users) {
   if (!users.includes(currentUserId)) {
     users.push(currentUserId);
   }
+  
+  // 排序用户列表，确保顺序一致
+  users.sort();
   
   // 更新在线用户显示
   if (users.length > 1) {
@@ -108,6 +98,9 @@ function updateOnlineUsersUI(users) {
     targetId.textContent = lastChatTarget;
     loadMessages();
   }
+  
+  // 缓存在线用户列表到本地存储
+  localStorage.setItem("cached_online_users", JSON.stringify(users));
 }
 
 // ==============================================
@@ -139,8 +132,6 @@ socket.on("connect", () => {
 socket.on("onlineList", (list) => {
   // 更新在线用户列表
   onlineUsersList = list;
-  // 缓存在线用户列表到本地存储
-  localStorage.setItem("cached_online_users", JSON.stringify(list));
   
   // 更新界面
   updateOnlineUsersUI(list);
