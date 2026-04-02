@@ -5,7 +5,17 @@ const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
+// 优化Socket.io配置，启用长轮询和CORS
+const io = new Server(server, {
+  cors: {
+    origin: "*", // 允许所有来源，生产环境中应该设置为具体的域名
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ["polling", "websocket"], // 优先使用轮询，确保在Vercel上也能工作
+  allowEIO3: true
+});
 
 // 静态文件服务（index.html / style.css / chat.js）
 app.use(express.static(path.join(__dirname)));
@@ -39,6 +49,7 @@ setInterval(broadcastOnlineUsers, 3000);
 
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
+  console.log("Transport used:", socket.conn.transport.name);
   let userId = null;
 
   // 用户加入
