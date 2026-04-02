@@ -37,8 +37,78 @@ function getFixedUserId() {
   return uid;
 }
 
-currentUserId = getFixedUserId();
-myId.textContent = currentUserId;
+// ==============================================
+// 初始化页面
+// ==============================================
+function initPage() {
+  // 生成并显示用户ID
+  currentUserId = getFixedUserId();
+  myId.textContent = currentUserId;
+  
+  // 立即显示上次选择的聊天对象
+  const lastChatTarget = localStorage.getItem("last_chat_target");
+  if (lastChatTarget && lastChatTarget !== "未选择") {
+    targetId.textContent = lastChatTarget;
+    // 尝试加载消息
+    loadMessages();
+  } else {
+    targetId.textContent = "未选择";
+  }
+  
+  // 立即显示缓存的在线用户或默认状态
+  const cachedOnlineUsers = localStorage.getItem("cached_online_users");
+  if (cachedOnlineUsers) {
+    try {
+      onlineUsersList = JSON.parse(cachedOnlineUsers);
+      // 立即显示缓存的在线用户
+      updateOnlineUsersUI(onlineUsersList);
+    } catch (e) {
+      console.error("加载缓存的在线用户失败:", e);
+      // 显示默认状态
+      updateOnlineUsersUI([]);
+    }
+  } else {
+    // 显示默认状态
+    updateOnlineUsersUI([]);
+  }
+}
+
+// ==============================================
+// 更新在线用户UI
+// ==============================================
+function updateOnlineUsersUI(users) {
+  // 确保用户列表包含当前用户
+  if (!users.includes(currentUserId)) {
+    users.push(currentUserId);
+  }
+  
+  // 更新在线用户显示
+  if (users.length > 1) {
+    // 过滤掉当前用户，只显示其他在线用户
+    const otherUsers = users.filter(u => u !== currentUserId);
+    onlineUser.textContent = otherUsers.join(" | ");
+    
+    // 更新选择框
+    selectBtn.innerHTML = '<option value="未选择">未选择</option>';
+    otherUsers.forEach(u => {
+      const opt = document.createElement("option");
+      opt.value = u;
+      opt.textContent = u;
+      selectBtn.appendChild(opt);
+    });
+  } else {
+    onlineUser.textContent = "暂无其他在线用户";
+    selectBtn.innerHTML = '<option value="未选择">未选择</option>';
+  }
+  
+  // 恢复上次选择的聊天对象
+  const lastChatTarget = localStorage.getItem("last_chat_target");
+  if (lastChatTarget && lastChatTarget !== "未选择" && users.includes(lastChatTarget)) {
+    selectBtn.value = lastChatTarget;
+    targetId.textContent = lastChatTarget;
+    loadMessages();
+  }
+}
 
 // ==============================================
 // 🔥 新增：滚动到聊天框底部
@@ -60,42 +130,6 @@ function emitReadReceipt() {
 }
 
 // ==============================================
-// 初始化：立即显示上次选择的聊天对象和缓存的在线用户
-// ==============================================
-const lastChatTarget = localStorage.getItem("last_chat_target");
-if (lastChatTarget && lastChatTarget !== "未选择") {
-  targetId.textContent = lastChatTarget;
-  // 尝试加载消息
-  loadMessages();
-}
-
-// 尝试从本地存储加载在线用户列表
-const cachedOnlineUsers = localStorage.getItem("cached_online_users");
-if (cachedOnlineUsers) {
-  try {
-    onlineUsersList = JSON.parse(cachedOnlineUsers);
-    // 立即显示缓存的在线用户
-    onlineUser.textContent = onlineUsersList.join(" | ");
-    // 立即填充选择框
-    selectBtn.innerHTML = '<option value="未选择">未选择</option>';
-    onlineUsersList.forEach(u => {
-      if (u !== currentUserId) {
-        const opt = document.createElement("option");
-        opt.value = u;
-        opt.textContent = u;
-        selectBtn.appendChild(opt);
-      }
-    });
-    // 恢复上次选择的聊天对象
-    if (lastChatTarget && lastChatTarget !== "未选择" && onlineUsersList.includes(lastChatTarget)) {
-      selectBtn.value = lastChatTarget;
-    }
-  } catch (e) {
-    console.error("加载缓存的在线用户失败:", e);
-  }
-}
-
-// ==============================================
 // 在线列表 + 记忆聊天对象
 // ==============================================
 socket.on("connect", () => {
@@ -109,23 +143,7 @@ socket.on("onlineList", (list) => {
   localStorage.setItem("cached_online_users", JSON.stringify(list));
   
   // 更新界面
-  onlineUser.textContent = list.join(" | ");
-  selectBtn.innerHTML = '<option value="未选择">未选择</option>';
-  list.forEach(u => {
-    if (u !== currentUserId) {
-      const opt = document.createElement("option");
-      opt.value = u;
-      opt.textContent = u;
-      selectBtn.appendChild(opt);
-    }
-  });
-  
-  // 恢复上次选择的聊天对象
-  if (lastChatTarget && lastChatTarget !== "未选择" && list.includes(lastChatTarget)) {
-    selectBtn.value = lastChatTarget;
-    targetId.textContent = lastChatTarget;
-    loadMessages();
-  }
+  updateOnlineUsersUI(list);
   
   // 移除自动发送已读回执的代码，避免刷新页面时未读消息变成已读
 });
@@ -333,10 +351,8 @@ clearBothBtn.onclick = () => {
 };
 
 // ==============================================
-// 页面加载时自动恢复记录并滚动到底部
+// 页面加载时初始化
 // ==============================================
 window.addEventListener("load", () => {
-  if (targetId.textContent !== "未选择") {
-    loadMessages();
-  }
+  initPage();
 });
