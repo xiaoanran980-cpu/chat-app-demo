@@ -1,5 +1,5 @@
-// 简化socket.io连接配置，确保能正确连接到服务器
-const socket = io();
+// 配置socket.io连接，确保能正确连接到服务器
+const socket = io(window.location.origin);
 
 const myId = document.getElementById("myId");
 const targetId = document.getElementById("targetId");
