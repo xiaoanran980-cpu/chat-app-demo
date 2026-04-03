@@ -1,5 +1,5 @@
 // 配置socket.io连接，确保能正确连接到服务器
-const socket = io("/", {
+const socket = io({
   reconnection: true,
   reconnectionAttempts: Infinity,
   reconnectionDelay: 1000,
