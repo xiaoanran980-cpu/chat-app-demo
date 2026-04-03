@@ -14,31 +14,42 @@
     </div>
     <div class="chat-content">
       <aside class="sidebar">
-        <div class="sidebar-item">
-          <label>我的ID</label>
-          <div class="id-box" id="myId">加载中...</div>
-          <button id="editNameBtn" style="margin-top:8px;padding:6px 12px;background:#667eea;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;">修改昵称</button>
+        <!-- 用户信息区域 -->
+        <div class="user-info-section">
+          <div class="user-header">
+            <span class="user-label">我的昵称</span>
+            <button id="editNameBtn" class="edit-btn" title="修改昵称">修改昵称</button>
+          </div>
+          <div class="user-name" id="myId">加载中...</div>
         </div>
-        <div class="sidebar-item">
+
+        <!-- 聊天对象选择 - 点击展开在线用户 -->
+        <div class="chat-target-section" id="chatTargetSection">
           <label>聊天对象</label>
-          <div class="id-box" id="targetId">未选择</div>
+          <div class="target-display-box" id="targetDisplayBox">
+            <span id="targetId">点击选择用户...</span>
+            <span class="arrow-icon">▼</span>
+          </div>
         </div>
-        <div class="sidebar-item">
-          <label>选择聊天用户</label>
-          <select class="select-btn" id="selectBtn"></select>
+
+        <!-- 在线用户列表 - 可折叠 -->
+        <div class="online-section" id="onlineSection" style="display:none;">
+          <div class="online-header" id="onlineHeader">
+            <label>在线用户 <span class="online-count" id="onlineCount">0</span></label>
+            <span class="arrow-icon">▲</span>
+          </div>
+          <div class="online-list" id="onlineUser">加载中...</div>
         </div>
-        <div class="sidebar-item">
-          <label>在线用户</label>
-          <div class="id-box online-user" id="onlineUser">加载中...</div>
-        </div>
-        <div class="sidebar-item">
+
+        <!-- 未读消息 -->
+        <div class="unread-section">
           <label>未读消息</label>
-          <div class="id-box unread-messages" id="unreadMessages" style="min-height:60px;">暂无未读消息</div>
+          <div class="unread-list" id="unreadMessages">暂无未读消息</div>
         </div>
       </aside>
       <main class="chat-main">
         <div class="control-bar">
-          <button id="clearBothBtn">双向销毁</button>
+          <button id="clearBothBtn">🗑️ 清空聊天记录</button>
         </div>
         <div class="messages-area" id="msgArea"></div>
         <div class="input-area">

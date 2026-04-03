@@ -11,7 +11,11 @@ const socket = io(window.location.origin, {
 const myId = document.getElementById("myId");
 const targetId = document.getElementById("targetId");
 const onlineUser = document.getElementById("onlineUser");
-const selectBtn = document.getElementById("selectBtn");
+const onlineCount = document.getElementById("onlineCount");
+const onlineSection = document.getElementById("onlineSection");
+const onlineHeader = document.getElementById("onlineHeader");
+const chatTargetSection = document.getElementById("chatTargetSection");
+const targetDisplayBox = document.getElementById("targetDisplayBox");
 const msgArea = document.getElementById("msgArea");
 const msgInput = document.getElementById("msgInput");
 const sendBtn = document.getElementById("sendBtn");
@@ -22,6 +26,7 @@ const unreadMessages = document.getElementById("unreadMessages");
 let currentUserId = null;
 let onlineUsersList = [];
 let unreadCounts = {}; // 存储每个用户的未读消息数量
+let isOnlineListVisible = false; // 在线用户列表是否可见
 
 // 成语ID池
 const IDIOMS = ["一心一意","一丝不苟","一尘不染","一举两得","一鸣惊人","一马当先","一路顺风","一言九鼎","一诺千金","一表人才","二话不说","二龙戏珠","二泉映月","二惠竞爽","二姓之好","二八佳人","二满三平","二童一马","二分明月","二缶钟惑","三心二意","三长两短","三番五次","三顾茅庐","三阳开泰","三生有幸","三思而行","三头六臂","三更半夜","三教九流","四面八方","四平八稳","四通八达","四海为家","四分五裂","四体不勤","四海升平","四脚朝天","四大皆空","四战之地","五光十色","五颜六色","五体投地","五湖四海","五彩缤纷","五风十雨","五谷丰登","五内如焚","五世其昌","五蕴皆空","六神无主","六根清净","六六大顺","六尘不染","六趣轮回","六通四辟","六马仰秣","六尺之孤","六出奇计","六卿分职","七上八下","七零八落","七手八脚","七嘴八舌","七情六欲","七步之才","七窍生烟","七擒七纵","七开八得","七扭八歪","八面玲珑","八面威风","八仙过海","八方呼应","八斗之才","八拜之交","八窗玲珑","八府巡按","八砖学士","八索九丘","九牛一毛","九死一生","九霄云外","九九归一","九流三教","九原可作","九合一匡","九关虎豹","九衢三市","九阍虎豹","十全十美","十万火急","十拿九稳","十恶不赦","十面埋伏","十室九空","十步芳草","十荡十决","十行俱下","十载寒窗","百发百中","百依百顺","百折不挠","百家争鸣","百里挑一","百年好合","百感交集","百废俱兴","百孔千疮","百媚千娇","千方百计","千军万马","千言万语","千山万水","千变万化","千钧一发","千载难逢","千丝万缕","千疮百孔","千锤百炼","万水千山","万众一心","万象更新","万紫千红","万古长青","万里无云","万念俱灰","万马奔腾","万无一失","万籁俱寂","天长地久","天经地义","天罗地网","天昏地暗","天诛地灭","天造地设","天高地厚","天寒地冻","天翻地覆","天公作美","日新月异","日积月累","日理万机","日以继夜","日月如梭","日上三竿","日暮途穷","日薄西山","日夜兼程","日进斗金","山清水秀","山高水长","山穷水尽","山盟海誓","山明水秀","山珍海味","山摇地动","山呼海啸","山重水复","山环水抱","风花雪月","风吹雨打","风平浪静","风调雨顺","风尘仆仆","风华正茂","风雨同舟","风云变幻","风起云涌","风驰电掣","春暖花开","春色满园","春光明媚","春意盎然","春回大地","春和景明","春寒料峭","春花秋月","春兰秋菊","春树暮云","秋色宜人","秋高气爽","秋水伊人","秋毫无犯","秋月春风","秋菊傲骨","秋收冬藏","秋色平分","秋意深浓","秋虫唧唧","冰雪聪明","冰清玉洁","冰天雪地","冰肌玉骨","冰壶秋月","冰魂雪魄","冰消瓦解","冰炭不投","冰寒于水","冰解云散","一帆风顺","两全其美","四季平安","五福临门","七星高照","八方来财","九九同心","百花齐放","万事如意","前程似锦","壮志凌云","光明磊落","乘风破浪","福星高照","气宇轩昂","卓尔不群","鹏程万里","如花似玉","金玉满堂","宁静致远","海阔天空","大公无私","心怀若谷","温文尔雅","厚德载物","自强不息","安居乐业","国泰民安","人寿年丰","繁荣昌盛","欣欣向荣","蒸蒸日上","花好月圆","举案齐眉","永结同心","相亲相爱","莫逆之交","志同道合","患难与共","情同手足","肝胆相照","勤学苦练","废寝忘食","学而不厌","孜孜不倦","博览群书","博学多才","见多识广","才高八斗","学富五车","满腹经纶","见义勇为","助人为乐","拾金不昧","乐善好施","扶危济困","雪中送炭","解囊相助","拔刀相助","仗义疏财","勇往直前","坚持不懈","持之以恒","顽强拼搏","百折不挠","坚韧不拔","坚定不移","矢志不渝","锲而不舍","生龙活虎","朝气蓬勃","神采奕奕","精神焕发","神采飞扬","正大光明","堂堂正正","廉洁奉公","严于律己","两袖清风","克己奉公","公而忘私","刚正不阿","繁花似锦","绿草如茵","鸟语花香","山清水秀","湖光山色","风景如画","美不胜收","赏心悦目","心旷神怡","流连忘返"];
@@ -59,13 +64,26 @@ function initPage() {
   
   // 显示加载状态
   onlineUser.textContent = "加载中...";
-  selectBtn.innerHTML = '<option value="未选择">未选择</option>';
   
   // 立即尝试连接
   if (socket.connected) {
     socket.emit("userJoin", currentUserId);
     socket.emit("requestOnlineList");
   }
+  
+  // 🔥 聊天对象选择框点击事件 - 展开在线用户列表
+  targetDisplayBox.addEventListener("click", () => {
+    isOnlineListVisible = !isOnlineListVisible;
+    onlineSection.style.display = isOnlineListVisible ? "flex" : "none";
+    targetDisplayBox.classList.toggle("active", isOnlineListVisible);
+  });
+  
+  // 🔥 在线用户头部点击事件 - 折叠在线用户列表
+  onlineHeader.addEventListener("click", () => {
+    isOnlineListVisible = false;
+    onlineSection.style.display = "none";
+    targetDisplayBox.classList.remove("active");
+  });
 }
 
 // ==============================================
@@ -80,32 +98,51 @@ function updateOnlineUsersUI(users) {
   // 排序用户列表，确保顺序一致
   users.sort();
   
-  // 更新在线用户显示
-  if (users.length > 1) {
-    // 过滤掉当前用户，只显示其他在线用户
-    const otherUsers = users.filter(u => u !== currentUserId);
-    onlineUser.textContent = otherUsers.join(" | ");
-    
-    // 更新选择框
-    selectBtn.innerHTML = '<option value="未选择">未选择</option>';
-    otherUsers.forEach(u => {
-      const opt = document.createElement("option");
-      opt.value = u;
-      opt.textContent = u;
-      selectBtn.appendChild(opt);
-    });
+  // 更新在线人数
+  const otherUsers = users.filter(u => u !== currentUserId);
+  onlineCount.textContent = otherUsers.length;
+  
+  // 更新在线用户显示 - 可点击选择
+  if (otherUsers.length > 0) {
+    onlineUser.innerHTML = otherUsers.map(u => 
+      `<span class="online-user-item" onclick="selectOnlineUser('${u}')">${u}</span>`
+    ).join('');
   } else {
-    onlineUser.textContent = "暂无其他在线用户";
-    selectBtn.innerHTML = '<option value="未选择">未选择</option>';
+    onlineUser.innerHTML = '<span style="color:#aaa;font-size:12px;width:100%;text-align:center;">暂无其他用户</span>';
   }
   
   // 恢复上次选择的聊天对象
   const lastChatTarget = localStorage.getItem("last_chat_target");
   if (lastChatTarget && lastChatTarget !== "未选择" && users.includes(lastChatTarget)) {
-    selectBtn.value = lastChatTarget;
     targetId.textContent = lastChatTarget;
     loadMessages();
   }
+}
+
+// ==============================================
+// 🔥 选择在线用户
+// ==============================================
+function selectOnlineUser(user) {
+  // 设置聊天对象
+  targetId.textContent = user;
+  localStorage.setItem("last_chat_target", user);
+  
+  // 清除该用户的未读消息计数
+  if (unreadCounts[user]) {
+    delete unreadCounts[user];
+    updateUnreadDisplay();
+  }
+  
+  // 折叠在线用户列表
+  isOnlineListVisible = false;
+  onlineSection.style.display = "none";
+  targetDisplayBox.classList.remove("active");
+  
+  // 加载消息
+  loadMessages();
+  
+  // 发送已读回执
+  socket.emit("markAsRead", { reader: currentUserId, from: user });
 }
 
 // ==============================================
@@ -115,16 +152,6 @@ function scrollToBottom() {
   requestAnimationFrame(() => {
     msgArea.scrollTop = msgArea.scrollHeight;
   });
-}
-
-// ==============================================
-// 🔥 新增：发送已读回执的统一方法
-// ==============================================
-function emitReadReceipt() {
-  const partner = targetId.textContent;
-  if (partner && partner !== "未选择") {
-    socket.emit("markAsRead", { reader: currentUserId, from: partner });
-  }
 }
 
 // ==============================================
@@ -169,24 +196,7 @@ socket.on("reconnect_error", (error) => {
   onlineUser.textContent = "连接失败";
 });
 
-selectBtn.addEventListener("change", () => {
-  const to = selectBtn.value;
-  targetId.textContent = to;
-  localStorage.setItem("last_chat_target", to);
-  
-  // 🔥 清除该用户的未读消息计数
-  if (unreadCounts[to]) {
-    delete unreadCounts[to];
-    updateUnreadDisplay();
-  }
-  
-  loadMessages();
-  
-  // 🔥 发送已读回执
-  if (to !== "未选择") {
-    socket.emit("markAsRead", { reader: currentUserId, from: to });
-  }
-});
+
 
 // ==============================================
 // 提示框
@@ -213,15 +223,12 @@ function saveMessages() {
   const key = getStorageKey();
   const messages = [];
   
-  // 收集所有消息及其状态
+  // 收集所有消息
   msgArea.querySelectorAll(".message").forEach(msgEl => {
     const message = {
       id: msgEl.dataset.id || generateMessageId(),
-      content: msgEl.textContent.replace(/未读|已读/, '').trim(),
-      isMe: msgEl.classList.contains("me"),
-      status: msgEl.querySelector(".read-status") ? 
-        (msgEl.querySelector(".read-status").classList.contains("read") ? "read" : "unread") : 
-        ""
+      content: msgEl.textContent.trim(),
+      isMe: msgEl.classList.contains("me")
     };
     messages.push(message);
   });
@@ -274,15 +281,6 @@ function loadMessages() {
         div.className = `message ${message.isMe ? "me" : "other"}`;
         div.dataset.id = message.id;
         div.textContent = message.content;
-        
-        // 为自己发送的消息添加已读/未读状态
-        if (message.isMe) {
-          const status = document.createElement("span");
-          status.className = `read-status ${message.status}`;
-          status.textContent = message.status === "read" ? "已读" : "未读";
-          div.appendChild(status);
-        }
-        
         msgArea.appendChild(div);
       });
     } catch (e) {
@@ -300,7 +298,7 @@ function generateMessageId() {
 }
 
 // ==============================================
-// 发送消息（🔥 带已读/未读状态标签）
+// 发送消息（带已读/未读状态标签）
 // ==============================================
 function send() {
   const to = targetId.textContent;
@@ -312,7 +310,7 @@ function send() {
   div.dataset.id = generateMessageId();
   div.textContent = txt;
 
-  // 🔥 添加未读状态标签
+  // 添加未读状态标签
   const status = document.createElement("span");
   status.className = "read-status unread";
   status.textContent = "未读";
@@ -335,7 +333,7 @@ msgInput.addEventListener("keydown", e => {
 });
 
 // ==============================================
-// 接收消息（🔥 自动发送已读回执）
+// 接收消息
 // ==============================================
 socket.on("newPrivateMsg", data => {
   if (data.to !== currentUserId) return;
@@ -351,13 +349,8 @@ socket.on("newPrivateMsg", data => {
     msgArea.appendChild(div);
     scrollToBottom();
     saveMessages();
-
-    // 🔥 我正在查看此对话且页面可见 → 立即发送已读回执
-    if (!document.hidden) {
-      socket.emit("markAsRead", { reader: currentUserId, from: data.from });
-    }
   } else {
-    // 🔥 未与发送者聊天，增加未读消息计数
+    // 未与发送者聊天，增加未读消息计数
     if (!unreadCounts[data.from]) {
       unreadCounts[data.from] = 0;
     }
@@ -408,21 +401,21 @@ msgArea.addEventListener("scroll", () => {
 });
 
 // ==============================================
-// 🔥 更新未读消息显示
+// 更新未读消息显示
 // ==============================================
 function updateUnreadDisplay() {
   const unreadList = Object.entries(unreadCounts).filter(([user, count]) => count > 0);
   
   if (unreadList.length === 0) {
-    unreadMessages.innerHTML = '<div style="text-align:center;color:#999;font-size:13px;padding:20px 0;">📭 暂无未读消息</div>';
+    unreadMessages.innerHTML = '<div style="color:#aaa;font-size:12px;text-align:center;padding:10px 0;">暂无未读</div>';
     return;
   }
   
   let html = '';
   unreadList.forEach(([user, count]) => {
-    html += `<div class="unread-item" onclick="selectUserFromUnread('${user}')">
-      <span class="unread-user">💬 ${user}</span>
-      <span class="unread-badge">${count}</span>
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f0e6ff;cursor:pointer;" onclick="selectUserFromUnread('${user}')">
+      <span style="color:#666;font-size:13px;">${user}</span>
+      <span style="background:linear-gradient(135deg,#ff6b6b,#ff8e8e);color:#fff;border-radius:50%;padding:2px 8px;font-size:11px;font-weight:600;min-width:20px;text-align:center;">${count}</span>
     </div>`;
   });
   
@@ -440,9 +433,6 @@ function selectUserFromUnread(user) {
   // 设置聊天对象
   targetId.textContent = user;
   localStorage.setItem("last_chat_target", user);
-  
-  // 更新选择框
-  selectBtn.value = user;
   
   // 加载消息
   loadMessages();
