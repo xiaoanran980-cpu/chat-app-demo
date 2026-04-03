@@ -1,11 +1,11 @@
 // 配置socket.io连接，确保能正确连接到服务器
-const socket = io("/", {
+const socket = io("https://chat-app-demo-production.up.railway.app", {
   reconnection: true,
   reconnectionAttempts: Infinity,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
   timeout: 20000,
-  transports: ["polling", "websocket"] // 优先使用轮询，确保在Vercel上也能工作
+  transports: ["polling", "websocket"] // 优先使用轮询，确保在各种环境下都能工作
 });
 
 const myId = document.getElementById("myId");
