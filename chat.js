@@ -414,15 +414,15 @@ function updateUnreadDisplay() {
   const unreadList = Object.entries(unreadCounts).filter(([user, count]) => count > 0);
   
   if (unreadList.length === 0) {
-    unreadMessages.innerHTML = "暂无未读消息";
+    unreadMessages.innerHTML = '<div style="text-align:center;color:#999;font-size:13px;padding:20px 0;">📭 暂无未读消息</div>';
     return;
   }
   
-  let html = "";
+  let html = '';
   unreadList.forEach(([user, count]) => {
-    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #eee;cursor:pointer;" onclick="selectUserFromUnread('${user}')">
-      <span>${user}</span>
-      <span style="background:#ff4757;color:#fff;border-radius:50%;padding:2px 8px;font-size:12px;">${count}</span>
+    html += `<div class="unread-item" onclick="selectUserFromUnread('${user}')">
+      <span class="unread-user">💬 ${user}</span>
+      <span class="unread-badge">${count}</span>
     </div>`;
   });
   
