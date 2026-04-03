@@ -16,6 +16,7 @@ const msgArea = document.getElementById("msgArea");
 const msgInput = document.getElementById("msgInput");
 const sendBtn = document.getElementById("sendBtn");
 const clearBothBtn = document.getElementById("clearBothBtn");
+const editNameBtn = document.getElementById("editNameBtn");
 
 let currentUserId = null;
 let onlineUsersList = [];
@@ -35,8 +36,13 @@ function generateRandomUserId() {
 // 初始化页面
 // ==============================================
 function initPage() {
-  // 生成并显示用户ID
-  currentUserId = generateRandomUserId();
+  // 从localStorage获取固定ID，如果没有则生成并保存
+  let savedUserId = localStorage.getItem("user_id");
+  if (!savedUserId) {
+    savedUserId = generateRandomUserId();
+    localStorage.setItem("user_id", savedUserId);
+  }
+  currentUserId = savedUserId;
   myId.textContent = currentUserId;
   
   // 立即显示上次选择的聊天对象
@@ -209,6 +215,37 @@ function saveMessages() {
   localStorage.setItem(key, JSON.stringify(messages));
 }
 
+// ==============================================
+// 保存来自其他用户的消息（未选择聊天对象时）
+// ==============================================
+function saveMessageFromOther(data) {
+  const partner = data.from;
+  const key = "chat_" + [currentUserId, partner].sort().join("_");
+  
+  // 获取现有的消息记录
+  let messages = [];
+  const storedMessages = localStorage.getItem(key);
+  if (storedMessages) {
+    try {
+      messages = JSON.parse(storedMessages);
+    } catch (e) {
+      console.error("解析消息失败:", e);
+    }
+  }
+  
+  // 添加新消息
+  messages.push({
+    id: generateMessageId(),
+    content: data.content,
+    isMe: false,
+    status: "",
+    timestamp: Date.now()
+  });
+  
+  // 保存到本地存储
+  localStorage.setItem(key, JSON.stringify(messages));
+}
+
 function loadMessages() {
   const key = getStorageKey();
   const storedMessages = localStorage.getItem(key);
@@ -288,18 +325,29 @@ msgInput.addEventListener("keydown", e => {
 // ==============================================
 socket.on("newPrivateMsg", data => {
   if (data.to !== currentUserId) return;
-  if (data.from !== targetId.textContent) return;
+  
+  // 检查是否正在与发送者聊天
+  const isChattingWithSender = data.from === targetId.textContent;
+  
+  if (isChattingWithSender) {
+    // 正在与发送者聊天，正常显示消息
+    const div = document.createElement("div");
+    div.className = "message other";
+    div.textContent = data.content;
+    msgArea.appendChild(div);
+    scrollToBottom();
+    saveMessages();
 
-  const div = document.createElement("div");
-  div.className = "message other";
-  div.textContent = data.content;
-  msgArea.appendChild(div);
-  scrollToBottom();
-  saveMessages();
-
-  // 🔥 我正在查看此对话且页面可见 → 立即发送已读回执
-  if (!document.hidden) {
-    socket.emit("markAsRead", { reader: currentUserId, from: data.from });
+    // 🔥 我正在查看此对话且页面可见 → 立即发送已读回执
+    if (!document.hidden) {
+      socket.emit("markAsRead", { reader: currentUserId, from: data.from });
+    }
+  } else {
+    // 🔥 未与发送者聊天，显示消息提醒
+    showTip(`💬 ${data.from}: ${data.content.substring(0, 20)}${data.content.length > 20 ? '...' : ''}`);
+    
+    // 保存消息到本地存储（用于后续查看）
+    saveMessageFromOther(data);
   }
 });
 
@@ -359,6 +407,40 @@ clearBothBtn.onclick = () => {
   saveMessages();
   socket.emit("clearBothChat", { to, from: currentUserId });
   showTip("✅ 已双向销毁聊天记录");
+};
+
+// ==============================================
+// 修改昵称功能
+// ==============================================
+editNameBtn.onclick = () => {
+  const newName = prompt("请输入新的昵称（2-10个字符）：", currentUserId);
+  if (!newName) return;
+  
+  // 验证昵称长度
+  if (newName.length < 2 || newName.length > 10) {
+    showTip("昵称长度必须在2-10个字符之间");
+    return;
+  }
+  
+  // 检查是否与其他用户重复
+  if (onlineUsersList.includes(newName) && newName !== currentUserId) {
+    showTip("该昵称已被其他用户使用");
+    return;
+  }
+  
+  // 保存旧ID用于更新服务器
+  const oldUserId = currentUserId;
+  
+  // 更新本地存储和显示
+  localStorage.setItem("user_id", newName);
+  currentUserId = newName;
+  myId.textContent = newName;
+  
+  // 通知服务器更新
+  socket.emit("userJoin", newName);
+  socket.emit("updateUserId", { oldId: oldUserId, newId: newName });
+  
+  showTip(`✅ 昵称已修改为：${newName}`);
 };
 
 // ==============================================
