@@ -181,7 +181,8 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = 3000;
+// 使用环境变量 PORT，默认值为 3000
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ 霁语·轻聊 服务已启动: http://localhost:${PORT}`);
 });
