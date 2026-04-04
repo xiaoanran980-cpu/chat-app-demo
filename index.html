@@ -49,12 +49,26 @@
       </aside>
       <main class="chat-main">
         <div class="control-bar">
+          <div class="call-buttons">
+            <button id="voiceCallBtn" class="call-btn voice">📞 语音通话</button>
+            <button id="videoCallBtn" class="call-btn video">📹 视频通话</button>
+          </div>
           <button id="clearBothBtn">🗑️ 清空聊天记录</button>
         </div>
         <div class="messages-area" id="msgArea"></div>
         <div class="input-area">
+          <div class="input-tools">
+            <button class="tool-btn" id="attachBtn" title="添加附件">📎</button>
+            <div class="attach-menu" id="attachMenu">
+              <button class="attach-option" id="imageBtn" title="发送图片">🖼️ 图片</button>
+              <button class="attach-option" id="emojiBtn" title="发送表情包">😊 表情</button>
+              <button class="attach-option" id="fileBtn" title="发送文件">📄 文件</button>
+            </div>
+          </div>
           <textarea id="msgInput" placeholder="输入消息..."></textarea>
           <button class="send-btn" id="sendBtn">发送</button>
+          <input type="file" id="fileInput" accept="image/*" style="display: none;">
+          <input type="file" id="generalFileInput" style="display: none;">
         </div>
       </main>
     </div>

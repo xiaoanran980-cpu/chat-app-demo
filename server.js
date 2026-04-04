@@ -92,6 +92,84 @@ io.on("connection", (socket) => {
     socket.emit("onlineList", onlineList);
   });
 
+  // 用户更新昵称
+  socket.on("updateUserId", (data) => {
+    console.log("User updating ID:", data.oldId, "→", data.newId);
+    if (onlineUsers.has(data.oldId)) {
+      // 从在线用户列表中删除旧ID，添加新ID
+      const socketId = onlineUsers.get(data.oldId);
+      onlineUsers.delete(data.oldId);
+      onlineUsers.set(data.newId, socketId);
+      // 立即广播在线用户列表
+      broadcastOnlineUsers();
+    }
+  });
+
+  // 通话请求
+  socket.on("callRequest", (data) => {
+    console.log("Call request:", data.from, "→", data.to, "(type:", data.type, ")");
+    const targetSocketId = onlineUsers.get(data.to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("callRequest", data);
+    }
+  });
+
+  // 通话接受
+  socket.on("callAccept", (data) => {
+    console.log("Call accept:", data.from, "→", data.to);
+    const targetSocketId = onlineUsers.get(data.to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("callAccept", data);
+    }
+  });
+
+  // 通话拒绝
+  socket.on("callReject", (data) => {
+    console.log("Call reject:", data.from, "→", data.to, "(reason:", data.reason, ")");
+    const targetSocketId = onlineUsers.get(data.to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("callReject", data);
+    }
+  });
+
+  // 通话 Offer
+  socket.on("callOffer", (data) => {
+    console.log("Call offer:", data.from, "→", data.to);
+    const targetSocketId = onlineUsers.get(data.to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("callOffer", data);
+    }
+  });
+
+  // 通话 Answer
+  socket.on("callAnswer", (data) => {
+    console.log("Call answer:", data.from, "→", data.to);
+    const targetSocketId = onlineUsers.get(data.to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("callAnswer", data);
+    }
+  });
+
+  // ICE 候选
+  socket.on("iceCandidate", (data) => {
+    const targetSocketId = onlineUsers.get(data.to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("iceCandidate", {
+        from: data.from,
+        candidate: data.candidate
+      });
+    }
+  });
+
+  // 通话结束
+  socket.on("callEnd", (data) => {
+    console.log("Call end:", data.from, "→", data.to);
+    const targetSocketId = onlineUsers.get(data.to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("callEnd", data);
+    }
+  });
+
   // 用户断开
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
@@ -103,7 +181,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ 霁语·轻聊 服务已启动: http://localhost:${PORT}`);
 });
