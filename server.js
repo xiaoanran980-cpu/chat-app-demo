@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
 
   // 已读回执转发
   socket.on("markAsRead", (data) => {
-    const targetSocketId = onlineUsers.get(data.from);
+    const targetSocketId = onlineUsers.get(data.to);
     if (targetSocketId) {
       io.to(targetSocketId).emit("messagesRead", data);
     }
@@ -102,15 +102,28 @@ io.on("connection", (socket) => {
       onlineUsers.set(data.newId, socketId);
       // 立即广播在线用户列表
       broadcastOnlineUsers();
+      
+      // 通知所有其他用户：该用户的昵称已更改
+      socket.broadcast.emit("userNicknameChanged", {
+        oldName: data.oldId,
+        newName: data.newId
+      });
+      console.log("已广播昵称更改通知:", data.oldId, "→", data.newId);
     }
   });
 
   // 通话请求
   socket.on("callRequest", (data) => {
-    console.log("Call request:", data.from, "→", data.to, "(type:", data.type, ")");
+    console.log("服务器收到通话请求:", data.from, "→", data.to, "(type:", data.callType || data.type, ")");
+    console.log("在线用户列表:", Array.from(onlineUsers.keys()));
     const targetSocketId = onlineUsers.get(data.to);
     if (targetSocketId) {
+      console.log("找到目标 socketId:", targetSocketId, "，转发通话请求");
       io.to(targetSocketId).emit("callRequest", data);
+    } else {
+      console.log("未找到目标用户", data.to, "，无法转发通话请求");
+      // 通知发起方对方不在线
+      io.to(socket.id).emit("callError", { message: "对方不在线" });
     }
   });
 
@@ -167,6 +180,18 @@ io.on("connection", (socket) => {
     const targetSocketId = onlineUsers.get(data.to);
     if (targetSocketId) {
       io.to(targetSocketId).emit("callEnd", data);
+    }
+  });
+
+  // 阅后即焚消息焚毁通知转发
+  socket.on("burnMessage", (data) => {
+    console.log("Burn message notification:", data.from, "→", data.to, "messageId:", data.messageId);
+    const targetSocketId = onlineUsers.get(data.to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("messageBurned", data);
+      console.log("已转发焚毁通知到:", data.to);
+    } else {
+      console.log("未找到目标用户", data.to, "，无法转发焚毁通知");
     }
   });
 

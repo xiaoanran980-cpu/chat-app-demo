@@ -53,9 +53,17 @@
             <button id="voiceCallBtn" class="call-btn voice">📞 语音通话</button>
             <button id="videoCallBtn" class="call-btn video">📹 视频通话</button>
           </div>
-          <button id="clearBothBtn">🗑️ 清空聊天记录</button>
+          <button id="moreFeaturesBtn" class="more-features-btn">⚙️ 其他功能</button>
         </div>
         <div class="messages-area" id="msgArea"></div>
+        <!-- 新消息提示按钮（放在messages-area外部，但仍在chat-main内） -->
+        <div class="new-message-indicator" id="newMessageIndicator" style="display: none;">
+          <button class="new-message-btn" id="newMessageBtn">
+            <span class="indicator-icon">↓</span>
+            <span class="indicator-text">新消息</span>
+            <span class="indicator-badge" id="newMessageCount">0</span>
+          </button>
+        </div>
         <div class="input-area">
           <div class="input-tools">
             <button class="tool-btn" id="attachBtn" title="添加附件">📎</button>
@@ -69,10 +77,254 @@
           <button class="send-btn" id="sendBtn">发送</button>
           <input type="file" id="fileInput" accept="image/*" style="display: none;">
           <input type="file" id="generalFileInput" style="display: none;">
+          <button class="voice-record-btn" id="voiceRecordBtn" title="语音消息">
+            <span class="voice-icon">🎤</span>
+            <span class="voice-text" id="voiceBtnText">语音</span>
+          </button>
+          <input type="file" id="voiceFileInput" accept="audio/*" style="display: none;">
         </div>
       </main>
     </div>
   </div>
+  
+  <!-- 多功能菜单弹窗 -->
+  <div class="more-features-dialog-overlay" id="moreFeaturesDialog" style="display: none;">
+    <div class="more-features-dialog">
+      <div class="dialog-header">
+        <h3>其他功能</h3>
+        <button class="dialog-close" id="closeMoreFeaturesDialog">×</button>
+      </div>
+      <div class="features-grid">
+        <div class="feature-item" id="scheduledSendBtn">
+          <div class="feature-icon">⏰</div>
+          <div class="feature-name">定时发送</div>
+        </div>
+        <div class="feature-item" id="burnAfterReadBtn">
+          <div class="feature-icon">🔥</div>
+          <div class="feature-name">阅后即焚</div>
+        </div>
+        <div class="feature-item" id="deleteChatBtn">
+          <div class="feature-icon">🗑️</div>
+          <div class="feature-name">删除聊天记录</div>
+        </div>
+        <div class="feature-item" id="gamesBtn">
+          <div class="feature-icon">🎮</div>
+          <div class="feature-name">小游戏</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 定时发送弹窗 -->
+  <div class="feature-sub-dialog-overlay" id="scheduledSendDialog" style="display: none;">
+    <div class="feature-sub-dialog scheduled-dialog">
+      <div class="dialog-header">
+        <h3>定时发送</h3>
+        <button class="dialog-close" id="closeScheduledSend">×</button>
+      </div>
+      <div class="scheduled-send-form">
+        <!-- 时间选择器 -->
+        <div class="time-picker-section">
+          <label>发送时间：</label>
+          <div class="time-picker-wrapper">
+            <div class="time-scroll-hint">
+              <span>💡 点击箭头或直接输入</span>
+            </div>
+            <div class="time-picker-scroll" id="timePickerScroll">
+              <div class="time-scroll-item" id="yearScroll">
+                <div class="scroll-btn scroll-up" data-action="increase" data-target="year">▲</div>
+                <div class="scroll-label">年</div>
+                <input class="scroll-value-input" type="number" id="yearInput" min="2026" max="2036" value="2026" />
+                <div class="scroll-btn scroll-down" data-action="decrease" data-target="year">▼</div>
+              </div>
+              <div class="time-scroll-divider">/</div>
+              <div class="time-scroll-item" id="monthScroll">
+                <div class="scroll-btn scroll-up" data-action="increase" data-target="month">▲</div>
+                <div class="scroll-label">月</div>
+                <input class="scroll-value-input" type="number" id="monthInput" min="1" max="12" value="04" />
+                <div class="scroll-btn scroll-down" data-action="decrease" data-target="month">▼</div>
+              </div>
+              <div class="time-scroll-divider">/</div>
+              <div class="time-scroll-item" id="dayScroll">
+                <div class="scroll-btn scroll-up" data-action="increase" data-target="day">▲</div>
+                <div class="scroll-label">日</div>
+                <input class="scroll-value-input" type="number" id="dayInput" min="1" max="31" value="05" />
+                <div class="scroll-btn scroll-down" data-action="decrease" data-target="day">▼</div>
+              </div>
+              <div class="time-scroll-divider" style="margin: 0 8px;">&nbsp;</div>
+              <div class="time-scroll-item" id="hourScroll">
+                <div class="scroll-btn scroll-up" data-action="increase" data-target="hour">▲</div>
+                <div class="scroll-label">时</div>
+                <input class="scroll-value-input" type="number" id="hourInput" min="0" max="23" value="12" />
+                <div class="scroll-btn scroll-down" data-action="decrease" data-target="hour">▼</div>
+              </div>
+              <div class="time-scroll-divider">:</div>
+              <div class="time-scroll-item" id="minuteScroll">
+                <div class="scroll-btn scroll-up" data-action="increase" data-target="minute">▲</div>
+                <div class="scroll-label">分</div>
+                <input class="scroll-value-input" type="number" id="minuteInput" min="0" max="59" value="00" />
+                <div class="scroll-btn scroll-down" data-action="decrease" data-target="minute">▼</div>
+              </div>
+              <div class="time-scroll-divider">:</div>
+              <div class="time-scroll-item" id="secondScroll">
+                <div class="scroll-btn scroll-up" data-action="increase" data-target="second">▲</div>
+                <div class="scroll-label">秒</div>
+                <input class="scroll-value-input" type="number" id="secondInput" min="0" max="59" value="00" />
+                <div class="scroll-btn scroll-down" data-action="decrease" data-target="second">▼</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 消息内容 -->
+        <label>消息内容：</label>
+        <textarea id="scheduledMessage" placeholder="输入定时发送的消息..."></textarea>
+        <div class="attach-buttons">
+          <button id="attachImageBtn" title="添加图片">🖼️ 图片</button>
+          <button id="attachFileBtn" title="添加文件">📄 文件</button>
+        </div>
+        <div id="scheduledAttachmentPreview"></div>
+        <button class="confirm-btn" id="confirmScheduledSend">确认定时发送</button>
+      </div>
+      
+      <!-- 定时消息列表 -->
+      <div class="scheduled-list-section">
+        <div class="scheduled-list-header">
+          <h4>📋 定时消息列表</h4>
+          <span class="scheduled-count" id="scheduledCount">0 条</span>
+        </div>
+        <div class="scheduled-list" id="scheduledList">
+          <div class="empty-list-tip">暂无定时消息</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 通用确认弹窗 -->
+  <div class="feature-sub-dialog-overlay" id="customConfirmDialog" style="display: none;">
+    <div class="feature-sub-dialog confirm-dialog">
+      <div class="dialog-header">
+        <h3 id="confirmDialogTitle">确认操作</h3>
+      </div>
+      <div class="confirm-dialog-body">
+        <p id="confirmDialogMessage">确定要执行此操作吗？</p>
+      </div>
+      <div class="confirm-dialog-actions">
+        <button class="confirm-cancel-btn" id="confirmCancelBtn">取消</button>
+        <button class="confirm-ok-btn" id="confirmOkBtn">确定</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 阅后即焚弹窗 -->
+  <div class="feature-sub-dialog-overlay" id="burnAfterReadDialog" style="display: none;">
+    <div class="feature-sub-dialog">
+      <div class="dialog-header">
+        <h3>阅后即焚</h3>
+        <button class="dialog-close" id="closeBurnAfterRead">×</button>
+      </div>
+      <div class="burn-settings">
+        <label>销毁时长（1-300秒）：</label>
+        <input type="range" id="burnDuration" min="1" max="300" value="10" />
+        <span id="burnDurationValue">10秒</span>
+        <button class="confirm-btn" id="enableBurnAfterRead">启用阅后即焚</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 删除聊天记录弹窗 -->
+  <div class="feature-sub-dialog-overlay" id="deleteChatDialog" style="display: none;">
+    <div class="feature-sub-dialog">
+      <div class="dialog-header">
+        <h3>删除聊天记录</h3>
+        <button class="dialog-close" id="closeDeleteChat">×</button>
+      </div>
+      <div class="delete-options">
+        <label class="delete-option-label">
+          <input type="radio" name="deleteType" value="local">
+          <div class="option-content">
+            <div class="option-icon">👤</div>
+            <div class="option-text">
+              <div class="option-title">仅删除本地</div>
+              <div class="option-desc">只删除我这里的聊天记录</div>
+            </div>
+          </div>
+        </label>
+        <label class="delete-option-label">
+          <input type="radio" name="deleteType" value="both">
+          <div class="option-content">
+            <div class="option-icon">👥</div>
+            <div class="option-text">
+              <div class="option-title">双向删除</div>
+              <div class="option-desc">删除双方的聊天记录，此操作不可恢复</div>
+            </div>
+          </div>
+        </label>
+      </div>
+      <div class="delete-confirm-section">
+        <button class="confirm-delete-btn" id="confirmDeleteChat">确认删除</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 小游戏弹窗 -->
+  <div class="feature-sub-dialog-overlay" id="gamesDialog" style="display: none;">
+    <div class="feature-sub-dialog games-dialog">
+      <div class="dialog-header">
+        <h3>小游戏</h3>
+        <button class="dialog-close" id="closeGames">×</button>
+      </div>
+      <div class="games-section">
+        <h4>双人游戏</h4>
+        <div class="games-grid">
+          <div class="game-item" id="gameGomoku">♟️ 五子棋</div>
+          <div class="game-item" id="gameDrawGuess">🎨 你画我猜</div>
+          <div class="game-item" id="gameDice">🎲 摇色子</div>
+          <div class="game-item" id="gameIdiom">📜 成语接龙</div>
+          <div class="game-item" id="gameMaze2P">🏃 双人迷宫</div>
+        </div>
+      </div>
+      <div class="games-section">
+        <h4>单人游戏</h4>
+        <div class="games-grid">
+          <div class="game-item" id="gameTetris">🧱 俄罗斯方块</div>
+          <div class="game-item" id="gameMinesweeper">💣 扫雷</div>
+          <div class="game-item" id="gameMaze">🌀 迷宫</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 游戏iframe容器 -->
+  <div class="feature-sub-dialog-overlay" id="gameFrameDialog" style="display: none;">
+    <div class="feature-sub-dialog" style="max-width:90vw;width:800px;height:85vh;">
+      <div class="dialog-header">
+        <h3 id="gameFrameTitle">游戏</h3>
+        <button class="dialog-close" id="closeGameFrame">×</button>
+      </div>
+      <iframe id="gameFrame" style="width:100%;height:calc(100% - 60px);border:none;border-radius:0 0 12px 12px;"></iframe>
+    </div>
+  </div>
+  
+  <!-- 语音录制预览 -->
+  <div class="voice-record-preview" id="voiceRecordPreview" style="display: none;">
+    <div class="recording-indicator">
+      <span class="recording-dot"></span>
+      <span class="recording-time" id="recordingTime">00:00</span>
+    </div>
+    <div class="voice-waveform" id="voiceWaveform"></div>
+    <div class="voice-preview-controls">
+      <!-- 录音中显示停止按钮 -->
+      <button id="stopRecordingBtn" class="voice-btn stop-recording" type="button" style="display: none;">⏹ 停止录音</button>
+      <!-- 录音完成后显示操作按钮 -->
+      <div id="voiceActionButtons" style="display: none; gap: 8px;">
+        <button id="playVoiceBtn" class="voice-btn play" type="button">▶ 播放</button>
+        <button id="cancelVoiceBtn" class="voice-btn cancel" type="button">取消</button>
+        <button id="sendVoiceBtn" class="voice-btn send" type="button">发送</button>
+      </div>
+    </div>
+  </div>
+  
   <script src="/socket.io/socket.io.js"></script>
   <script src="chat.js"></script>
 </body>
